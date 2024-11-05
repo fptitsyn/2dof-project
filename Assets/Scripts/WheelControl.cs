@@ -12,8 +12,8 @@ public class WheelControl : MonoBehaviour
     public bool steerable;
     public bool motorized;
 
-    Vector3 position;
-    Quaternion rotation;
+    private Vector3 _position;
+    private Quaternion _rotation;
 
     // Start is called before the first frame update
     private void Start()
@@ -22,12 +22,12 @@ public class WheelControl : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         // Get the Wheel collider's world pose values and
         // use them to set the wheel model's position and rotation
-        WheelCollider.GetWorldPose(out position, out rotation);
-        wheelModel.transform.position = position;
-        wheelModel.transform.rotation = rotation;
+        WheelCollider.GetWorldPose(out _position, out _rotation);
+        wheelModel.transform.position = _position;
+        wheelModel.transform.rotation = _rotation;
     }
 }
