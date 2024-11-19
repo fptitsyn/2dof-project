@@ -105,7 +105,6 @@ namespace Vehicle
                     }
                 }
             }
-            
         }
 
         private void Update()
