@@ -1,4 +1,5 @@
 ﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,19 +11,30 @@ namespace Vehicle
         [SerializeField] private WheelControl[] wheels;
         [SerializeField] private Transform centerOfMass;
 
-        [SerializeField] private float motorTorque = 2000;
-        [SerializeField] private float brakeTorque = 2000;
-        [SerializeField] private float steeringRange = 30;
-        [SerializeField] private float steeringRangeAtMaxSpeed = 10;
-        [SerializeField] private float maxSpeed = 20;
+        [SerializeField] private float motorTorque;
+        [SerializeField] private float brakeTorque;
+        [SerializeField] private float steeringRange;
+        [SerializeField] private float steeringRangeAtMaxSpeed;
 
+        [Header("Car GUI")]
+        [SerializeField] private GameObject tabletGUI;
+        [SerializeField] private TMP_Text speedometerText;
+        [SerializeField] private TMP_Text rpmText;
+        [SerializeField] private TMP_Text gearText;
+
+        [SerializeField] private GameObject steeringWheel;
+        
+        // Input actions
         private InputAction _setRearAction;
         private InputAction _shiftGearAction;
         private InputAction _setNeutralAction;
+        private InputAction _startEngineAction;
         
         private GearShifter _gearShifter;
         private Rigidbody _rb;
     
+        private bool _engineRunning;
+        
         private void Start()
         {
             _rb = GetComponent<Rigidbody>();
@@ -32,33 +44,50 @@ namespace Vehicle
             _setRearAction = InputSystem.actions.FindAction("SetRear");
             _shiftGearAction = InputSystem.actions.FindAction("ShiftGear");
             _setNeutralAction = InputSystem.actions.FindAction("SetNeutral");
+            _startEngineAction = InputSystem.actions.FindAction("StartEngine");
         }
 
         private void FixedUpdate()
         {
             _rb.centerOfMass = centerOfMass.localPosition;
+            
+            if (!_engineRunning)
+            {
+                return;
+            }
+            
             // Calculate current speed in relation to the forward direction of the car
             // (this returns a negative number when traveling backwards)
             float forwardSpeed = Vector3.Dot(transform.forward, _rb.linearVelocity);
             
-            float maxSpeedInKms = maxSpeed * 3.6f;
-            float kilosPerHour = Mathf.Clamp(forwardSpeed * 3.6f, 0, maxSpeedInKms);
             // Calculate how close the car is to top speed
             // as a number from zero to one
-            maxSpeed = _gearShifter.maxSpeedInKms / 3.6f;
+            float maxSpeed = _gearShifter.maxSpeedInKms / 3.6f;
             float speedFactor = Mathf.InverseLerp(0, maxSpeed, forwardSpeed);
+            
             // Use that to calculate how much torque is available 
             // (zero torque at top speed)
             float currentMotorTorque = Mathf.Lerp(motorTorque, 0, speedFactor);
-            // Debug.Log(currentMotorTorque);
+            
             // …and to calculate how much to steer 
             // (the car steers more gently at top speed)
             float currentSteerRange = Mathf.Lerp(steeringRange, steeringRangeAtMaxSpeed, speedFactor);
 
-            // Check whether the user input is in the same direction 
-            // as the car's velocity
-            // bool isAccelerating = Mathf.Sign(inputCtrl.Vertical) == Mathf.Sign(forwardSpeed);
+            Drive(currentSteerRange, currentMotorTorque);
             
+            float rpm = motorTorque * speedFactor;
+            float kilosPerHour = Mathf.Clamp(forwardSpeed * 3.6f, 0, _gearShifter.maxSpeedInKms);
+            UpdateUi(kilosPerHour, rpm);
+        }
+
+        private void Update()
+        {
+            ControlInput();
+            AnimateSteeringWheel();
+        }
+
+        private void Drive(float currentSteerRange, float currentMotorTorque)
+        {
             foreach (WheelControl wheel in wheels)
             {
                 // Apply steering to Wheel colliders that have "Steerable" enabled
@@ -106,11 +135,6 @@ namespace Vehicle
                 }
             }
         }
-
-        private void Update()
-        {
-            ControlInput();
-        }
         
         private void ControlInput()
         {
@@ -129,6 +153,37 @@ namespace Vehicle
             {
                 _gearShifter.CurrentGear = 0;
             }
+
+            if (_startEngineAction.triggered)
+            {
+                _engineRunning = true;
+                tabletGUI.SetActive(!tabletGUI.activeSelf);
+            }
+        }
+
+        private void UpdateUi(float kilosPerHour, float rpm)
+        {
+            speedometerText.text = Mathf.Round(kilosPerHour).ToString("00");
+            rpmText.text = Mathf.Round(rpm).ToString();
+            if (_gearShifter.CurrentGear == 0)
+            {
+                gearText.text = "N";
+            }
+            else if (_gearShifter.CurrentGear == -1)
+            {
+                gearText.text = "R";
+            }
+            else
+            {
+                gearText.text = _gearShifter.CurrentGear.ToString();
+            }
+        }
+
+        private void AnimateSteeringWheel()
+        {
+            // float angle = Mathf.InverseLerp(-450, 450, inputCtrl.Horizontal);
+            Vector3 rotationZ = new Vector3(0, 0, -inputCtrl.Horizontal);
+            steeringWheel.transform.Rotate(rotationZ);
         }
     }
 }

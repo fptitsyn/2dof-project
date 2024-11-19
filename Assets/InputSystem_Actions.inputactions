@@ -1021,6 +1021,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "StartEngine",
+                    "type": "Button",
+                    "id": "f9e33dcc-f973-4fb7-a586-4182684e52e9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1109,6 +1118,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "SetNeutral",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1e936d0c-b95f-42dc-ac2f-b836c039daf5",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StartEngine",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
