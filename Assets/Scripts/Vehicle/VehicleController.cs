@@ -1,34 +1,37 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Vehicle
 {
     public class VehicleController : MonoBehaviour
     {
-        
-        // [Tooltip("Set ref in order of FL, FR, RL, RR")]
-        // [SerializeField] private WheelCollider[] wheelColliders;
-
-        // [Tooltip("Set ref of wheel meshes in order of  FL, FR, RL, RR")]
-        
         [SerializeField] private InputController inputCtrl;
         [SerializeField] private WheelControl[] wheels;
         [SerializeField] private Transform centerOfMass;
-
-        // public int force;
-        // public int angle;
-        // public int brakeForce;
 
         [SerializeField] private float motorTorque = 2000;
         [SerializeField] private float brakeTorque = 2000;
         [SerializeField] private float steeringRange = 30;
         [SerializeField] private float steeringRangeAtMaxSpeed = 10;
         [SerializeField] private float maxSpeed = 20;
+
+        private InputAction _setRearAction;
+        private InputAction _shiftGearAction;
+        private InputAction _setNeutralAction;
         
+        private GearShifter _gearShifter;
         private Rigidbody _rb;
     
         private void Start()
         {
             _rb = GetComponent<Rigidbody>();
+            _gearShifter = GetComponent<GearShifter>();
+            _gearShifter.CurrentGear = 0; // neutral
+            
+            _setRearAction = InputSystem.actions.FindAction("SetRear");
+            _shiftGearAction = InputSystem.actions.FindAction("ShiftGear");
+            _setNeutralAction = InputSystem.actions.FindAction("SetNeutral");
         }
 
         private void FixedUpdate()
@@ -37,29 +40,25 @@ namespace Vehicle
             // Calculate current speed in relation to the forward direction of the car
             // (this returns a negative number when traveling backwards)
             float forwardSpeed = Vector3.Dot(transform.forward, _rb.linearVelocity);
-
-
+            
+            float maxSpeedInKms = maxSpeed * 3.6f;
+            float kilosPerHour = Mathf.Clamp(forwardSpeed * 3.6f, 0, maxSpeedInKms);
             // Calculate how close the car is to top speed
             // as a number from zero to one
+            maxSpeed = _gearShifter.maxSpeedInKms / 3.6f;
             float speedFactor = Mathf.InverseLerp(0, maxSpeed, forwardSpeed);
-
             // Use that to calculate how much torque is available 
             // (zero torque at top speed)
             float currentMotorTorque = Mathf.Lerp(motorTorque, 0, speedFactor);
-
+            // Debug.Log(currentMotorTorque);
             // …and to calculate how much to steer 
             // (the car steers more gently at top speed)
             float currentSteerRange = Mathf.Lerp(steeringRange, steeringRangeAtMaxSpeed, speedFactor);
 
             // Check whether the user input is in the same direction 
             // as the car's velocity
-            bool isAccelerating = Mathf.Sign(inputCtrl.Vertical) == Mathf.Sign(forwardSpeed);
+            // bool isAccelerating = Mathf.Sign(inputCtrl.Vertical) == Mathf.Sign(forwardSpeed);
             
-            // Steer();
-            // Drive(currentMotorTorque);
-            // Brake(brakeTorque);
-            // UpdateWheelMovements();
-
             foreach (WheelControl wheel in wheels)
             {
                 // Apply steering to Wheel colliders that have "Steerable" enabled
@@ -68,56 +67,69 @@ namespace Vehicle
                     wheel.WheelCollider.steerAngle = inputCtrl.Horizontal * currentSteerRange;
                 }
 
-                if (isAccelerating)
+                if (_gearShifter.CurrentGear == 0) // neutral
+                {
+                    return;
+                }
+                
+                if (_gearShifter.CurrentGear > 0)
                 {
                     // Apply torque to Wheel colliders that have "Motorized" enabled
                     if (wheel.motorized)
                     {
-                        wheel.WheelCollider.motorTorque = inputCtrl.Vertical * currentMotorTorque;
+                        wheel.WheelCollider.motorTorque = Mathf.Abs(inputCtrl.Vertical) * currentMotorTorque;
                     }
 
-                    wheel.WheelCollider.brakeTorque = 0;
+                    if (inputCtrl.Vertical < 0)
+                    {
+                        wheel.WheelCollider.brakeTorque = Mathf.Abs(inputCtrl.Vertical) * brakeTorque;
+                    }
+                    else
+                    {
+                        wheel.WheelCollider.brakeTorque = 0;
+                    }
                 }
-                else
+                else // rear
                 {
                     // If the user is trying to go in the opposite direction
                     // apply brakes to all wheels
-                    wheel.WheelCollider.brakeTorque = Mathf.Abs(inputCtrl.Vertical) * brakeTorque;
-                    wheel.WheelCollider.motorTorque = 0;
+                    if (inputCtrl.Vertical > 0)
+                    {
+                        wheel.WheelCollider.motorTorque = Mathf.Abs(inputCtrl.Vertical) * -currentMotorTorque;
+                        wheel.WheelCollider.brakeTorque = 0;
+                    }
+                    else
+                    {
+                        wheel.WheelCollider.brakeTorque = Mathf.Abs(inputCtrl.Vertical) * brakeTorque;
+                        wheel.WheelCollider.motorTorque = 0;
+                    }
                 }
             }
+            
         }
-	
-        //Drive forward/backward
-        // private void Drive(float torque)
-        // {
-        //     wheelColliders[0].motorTorque = wheelColliders[1].motorTorque = inputCtrl.Vertical * torque;
-        //     wheelColliders[0].brakeTorque = wheelColliders[1].brakeTorque = 0;
-        // }
-    
-        //Steer left/right
-        // private void Steer()
-        // {
-        //     wheelColliders[0].steerAngle = wheelColliders[1].steerAngle = inputCtrl.Horizontal * angle;
-        // }
 
-        //Apply brakes
-        // private void Brake(float torque)
-        // {
-        //     wheelColliders[0].brakeTorque = wheelColliders[1].brakeTorque = inputCtrl.Brake * torque;
-        // }
-        //
-        // //imitate the wheelcollider movements onto the wheel-meshes
-        // private void UpdateWheelMovements()
-        // {
-        //     for (var i = 0; i < wheels.Length; i++)
-        //     {
-        //         Vector3 pos;
-        //         Quaternion rot;
-        //         wheelColliders[i].GetWorldPose(out pos, out rot);
-        //         wheels[i].transform.position = pos;
-        //         wheels[i].transform.rotation = rot;
-        //     }
-        // }
+        private void Update()
+        {
+            ControlInput();
+        }
+        
+        private void ControlInput()
+        {
+            if (_setRearAction.triggered)
+            {
+                _gearShifter.CurrentGear = -1;
+            }
+
+            if (_shiftGearAction.triggered)
+            {
+                InputControl inputControl = _shiftGearAction.activeControl;
+                _gearShifter.CurrentGear = Convert.ToInt32(inputControl.displayName);
+            }
+
+            if (_setNeutralAction.triggered)
+            {
+                _gearShifter.CurrentGear = 0;
+            }
+        }
     }
 }
