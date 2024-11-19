@@ -58,7 +58,7 @@ namespace Vehicle
             
             // Calculate current speed in relation to the forward direction of the car
             // (this returns a negative number when traveling backwards)
-            float forwardSpeed = Vector3.Dot(transform.forward, _rb.linearVelocity);
+            float forwardSpeed = Mathf.Abs(Vector3.Dot(transform.forward, _rb.linearVelocity));
             
             // Calculate how close the car is to top speed
             // as a number from zero to one
@@ -171,6 +171,7 @@ namespace Vehicle
             }
             else if (_gearShifter.CurrentGear == -1)
             {
+                Debug.Log(_gearShifter.maxSpeedInKms);
                 gearText.text = "R";
             }
             else
@@ -182,6 +183,7 @@ namespace Vehicle
         private void AnimateSteeringWheel()
         {
             // float angle = Mathf.InverseLerp(-450, 450, inputCtrl.Horizontal);
+            // need to clamp rotation and reset the wheel gradually if there is no input
             Vector3 rotationZ = new Vector3(0, 0, -inputCtrl.Horizontal);
             steeringWheel.transform.Rotate(rotationZ);
         }

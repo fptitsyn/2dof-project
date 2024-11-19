@@ -24,7 +24,7 @@ namespace Vehicle
                     4 => 90,
                     5 => 125,
                     6 => 160,
-                    -1 => 15,
+                    -1 => 15, // doesn't work
                     _ => 0
                 };
                 
