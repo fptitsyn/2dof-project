@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -29,11 +30,13 @@ namespace Vehicle
         private InputAction _shiftGearAction;
         private InputAction _setNeutralAction;
         private InputAction _startEngineAction;
+        private InputAction _brakeAction;
         
         private GearShifter _gearShifter;
         private Rigidbody _rb;
     
         private bool _engineRunning;
+        private bool _brakeApplied = true;
         
         private void Start()
         {
@@ -45,6 +48,7 @@ namespace Vehicle
             _shiftGearAction = InputSystem.actions.FindAction("ShiftGear");
             _setNeutralAction = InputSystem.actions.FindAction("SetNeutral");
             _startEngineAction = InputSystem.actions.FindAction("StartEngine");
+            _brakeAction = InputSystem.actions.FindAction("Brake");
         }
 
         private void FixedUpdate()
@@ -96,7 +100,7 @@ namespace Vehicle
                     wheel.WheelCollider.steerAngle = inputCtrl.Horizontal * currentSteerRange;
                 }
 
-                if (_gearShifter.CurrentGear == 0) // neutral
+                if (_gearShifter.CurrentGear == 0 || _brakeApplied) // neutral
                 {
                     return;
                 }
@@ -159,12 +163,17 @@ namespace Vehicle
                 _engineRunning = true;
                 tabletGUI.SetActive(!tabletGUI.activeSelf);
             }
+
+            if (_brakeAction.triggered)
+            {
+                _brakeApplied = !_brakeApplied;
+            }
         }
 
         private void UpdateUi(float kilosPerHour, float rpm)
         {
             speedometerText.text = Mathf.Round(kilosPerHour).ToString("00");
-            rpmText.text = Mathf.Round(rpm).ToString();
+            rpmText.text = Mathf.Round(rpm).ToString(CultureInfo.InvariantCulture);
             if (_gearShifter.CurrentGear == 0)
             {
                 gearText.text = "N";
@@ -182,10 +191,27 @@ namespace Vehicle
 
         private void AnimateSteeringWheel()
         {
-            // float angle = Mathf.InverseLerp(-450, 450, inputCtrl.Horizontal);
-            // need to clamp rotation and reset the wheel gradually if there is no input
-            Vector3 rotationZ = new Vector3(0, 0, -inputCtrl.Horizontal);
-            steeringWheel.transform.Rotate(rotationZ);
+            float turnSpeed = 75f;
+            // float angle = 0f;
+            // if (inputCtrl.Horizontal > 0)
+            // {
+            //     angle = Mathf.InverseLerp(0, 450, inputCtrl.Horizontal);
+            // }
+            // else if (inputCtrl.Horizontal < 0)
+            // {
+            //     angle = Mathf.InverseLerp(-450, 0, inputCtrl.Horizontal);
+            // }
+            if (inputCtrl.Horizontal != 0)
+            {
+                // float angle = Mathf.InverseLerp(-450, 450, inputCtrl.Horizontal) * turnSpeed;
+                // need to clamp rotation and reset the wheel gradually if there is no input
+                // Vector3 rotationZ = new Vector3(0, 0, -angle);
+                steeringWheel.transform.Rotate(Vector3.forward, -inputCtrl.Horizontal * turnSpeed * Time.deltaTime);
+            }
+            else
+            {
+                // reset rotation
+            }
         }
     }
 }
