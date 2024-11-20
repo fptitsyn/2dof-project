@@ -24,6 +24,7 @@ namespace Vehicle
         [SerializeField] private TMP_Text gearText;
 
         [SerializeField] private GameObject steeringWheel;
+        [SerializeField] private GameObject headLights;
         
         // Input actions
         private InputAction _setRearAction;
@@ -31,6 +32,7 @@ namespace Vehicle
         private InputAction _setNeutralAction;
         private InputAction _startEngineAction;
         private InputAction _brakeAction;
+        private InputAction _lightsAction;
         
         private GearShifter _gearShifter;
         private Rigidbody _rb;
@@ -49,6 +51,7 @@ namespace Vehicle
             _setNeutralAction = InputSystem.actions.FindAction("SetNeutral");
             _startEngineAction = InputSystem.actions.FindAction("StartEngine");
             _brakeAction = InputSystem.actions.FindAction("Brake");
+            _lightsAction = InputSystem.actions.FindAction("Lights");
         }
 
         private void FixedUpdate()
@@ -167,6 +170,14 @@ namespace Vehicle
             if (_brakeAction.triggered)
             {
                 _brakeApplied = !_brakeApplied;
+            }
+
+            if (_lightsAction.triggered)
+            {
+                if (_engineRunning)
+                {
+                    headLights.SetActive(!headLights.activeSelf);
+                }
             }
         }
 

@@ -2609,6 +2609,39 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &1996626492324407590
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6770120342009792401}
+  m_Layer: 0
+  m_Name: Headlights
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6770120342009792401
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1996626492324407590}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7310069064489643098}
+  - {fileID: 1840371917943631946}
+  m_Father: {fileID: 1567096034924203704}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2025186441438181109
 GameObject:
   m_ObjectHideFlags: 0
@@ -4634,7 +4667,7 @@ GameObject:
   - component: {fileID: 8328074964487651205}
   - component: {fileID: 3051608091211429957}
   m_Layer: 0
-  m_Name: Spot Light (1)
+  m_Name: Spot Light Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4648,12 +4681,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3967248472341049473}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.717, y: 1.106, z: 2.062}
+  m_LocalRotation: {x: -0, y: -7.5827165e-26, z: -3.4694465e-18, w: 1}
+  m_LocalPosition: {x: -0.7170014, y: 1.106, z: 2.062002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1567096034924203704}
+  m_Father: {fileID: 6770120342009792401}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!108 &8328074964487651205
 Light:
@@ -6266,7 +6299,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6925828798404630117
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7046,8 +7079,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7310069064489643098}
-  - {fileID: 1840371917943631946}
+  - {fileID: 6770120342009792401}
   m_Father: {fileID: 1555568849007852848}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7538328762623153311
@@ -8736,7 +8768,7 @@ GameObject:
   - component: {fileID: 3282647903331080311}
   - component: {fileID: 5301080120028087772}
   m_Layer: 0
-  m_Name: Spot Light
+  m_Name: Spot Light Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8750,12 +8782,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7712069046999515652}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.736, y: 1.11, z: 2.21}
+  m_LocalRotation: {x: -0, y: -7.5827165e-26, z: -3.4694465e-18, w: 1}
+  m_LocalPosition: {x: 0.73600054, y: 1.1099999, z: 2.21}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1567096034924203704}
+  m_Father: {fileID: 6770120342009792401}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!108 &3282647903331080311
 Light:
@@ -9506,14 +9538,16 @@ MonoBehaviour:
   - {fileID: 8492826098792965317}
   - {fileID: 926990572773789248}
   centerOfMass: {fileID: 73004306618523689}
-  motorTorque: 2000
-  brakeTorque: 2000
-  steeringRange: 30
-  steeringRangeAtMaxSpeed: 10
-  maxSpeed: 20
+  motorTorque: 3500
+  brakeTorque: 2500
+  steeringRange: 40
+  steeringRangeAtMaxSpeed: 15
+  tabletGUI: {fileID: 5565463020543530209}
   speedometerText: {fileID: 2233208003008372282}
   rpmText: {fileID: 7449014890092419342}
   gearText: {fileID: 4883994954740785225}
+  steeringWheel: {fileID: 1283614622344828610}
+  headLights: {fileID: 1996626492324407590}
 --- !u!114 &2205619189603707019
 MonoBehaviour:
   m_ObjectHideFlags: 0
