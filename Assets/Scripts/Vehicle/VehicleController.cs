@@ -42,6 +42,8 @@ namespace Vehicle
         private bool _handBrakeApplied;
 
         [SerializeField] private InputControllerReader controller;
+
+        private bool _isPaused;
         
         private void Start()
         {
@@ -157,8 +159,7 @@ namespace Vehicle
 
         private void OnEnable()
         {
-            controller.OnReturnCallback += HandleOnReturnCallback;
-            
+            // Shifter
             shifter1Action.action.performed += HandleShifterCallback;
             shifter2Action.action.performed += HandleShifterCallback;
             shifter3Action.action.performed += HandleShifterCallback;
@@ -166,16 +167,20 @@ namespace Vehicle
             shifter5Action.action.performed += HandleShifterCallback;
             shifter6Action.action.performed += HandleShifterCallback;
             shifter7Action.action.performed += HandleShifterCallback;
-            
+         
+            // Buttons
+            controller.OnReturnCallback += HandleOnReturnCallback;
             controller.HandbrakeCallback += HandleHandbrakeCallback;
             controller.OnWestButtonCallback += HandleWestCallback;
             controller.OnSouthButtonCallback += HandleSouthCallback;
+            
+            // UI
+            controller.OnOptionsCallback += HandleOptionsCallback;
         }
 
         private void OnDisable()
         {
-            controller.OnReturnCallback -= HandleOnReturnCallback;
-            
+            // shifter
             shifter1Action.action.performed -= HandleShifterCallback;
             shifter2Action.action.performed -= HandleShifterCallback;
             shifter3Action.action.performed -= HandleShifterCallback;
@@ -184,9 +189,14 @@ namespace Vehicle
             shifter6Action.action.performed -= HandleShifterCallback;
             shifter7Action.action.performed -= HandleShifterCallback;
             
+            // Buttons
             controller.HandbrakeCallback -= HandleHandbrakeCallback;
             controller.OnWestButtonCallback -= HandleWestCallback;
             controller.OnSouthButtonCallback -= HandleSouthCallback;
+            controller.OnReturnCallback -= HandleOnReturnCallback;
+            
+            // UI
+            controller.OnOptionsCallback -= HandleOptionsCallback;
         }
 
         private void HandleOnReturnCallback(bool value) // start engine
@@ -234,6 +244,23 @@ namespace Vehicle
             if (value)
             {
                 _gearShifter.CurrentGear = 0;
+            }
+        }
+
+        private void HandleOptionsCallback(bool value)
+        {
+            if (value)
+            {
+                if (_isPaused)
+                {
+                    _isPaused = false;
+                    Time.timeScale = 1;
+                }
+                else
+                {
+                    _isPaused = true;
+                    Time.timeScale = 0;
+                }
             }
         }
     }
