@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccaeb6464530f444b959e3b98421344b, type: 3}
   m_Name: InputControllerReader
   m_EditorClassIdentifier: 
-  _isDebugMode: 0
+  isDebugModeOnStartup: 1

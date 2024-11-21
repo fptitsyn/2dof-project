@@ -2495,13 +2495,13 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 2ceadcf995ffb7f4098aa9760b3dd540, type: 2}
-  - {fileID: 2100000, guid: f04f0549f58f7f145a883805af71fa6a, type: 2}
-  - {fileID: 2100000, guid: af041fba797db6943b51d30be8220292, type: 2}
+  - {fileID: 2100000, guid: 8917769ab3da14b4781c97bc6d5690ea, type: 2}
+  - {fileID: 2100000, guid: f82dc7374391c5147a0f008b49fe647f, type: 2}
+  - {fileID: 2100000, guid: 9b6dac862d6d74d489fbfb8f02d12e63, type: 2}
   - {fileID: 2100000, guid: 756683656209264429a28f8f624dbbcb, type: 2}
-  - {fileID: 2100000, guid: 6ed8e19c9dace3249ab41fca7f75839d, type: 2}
-  - {fileID: 2100000, guid: eca5aff13970d234aaad5e6ab7fce6d4, type: 2}
-  - {fileID: 2100000, guid: 74cbf476563d7f148b06746c22a1d947, type: 2}
+  - {fileID: 2100000, guid: 756683656209264429a28f8f624dbbcb, type: 2}
+  - {fileID: 2100000, guid: 756683656209264429a28f8f624dbbcb, type: 2}
+  - {fileID: 2100000, guid: 756683656209264429a28f8f624dbbcb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2624,7 +2624,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6770120342009792401
 Transform:
   m_ObjectHideFlags: 0
@@ -9362,7 +9362,6 @@ GameObject:
   - component: {fileID: 7477843142680326669}
   - component: {fileID: 1008950939395416048}
   - component: {fileID: 8103236199798092605}
-  - component: {fileID: 2205619189603707019}
   - component: {fileID: 4713518345410871357}
   - component: {fileID: 9019932750543526738}
   - component: {fileID: 8754347873753521572}
@@ -9531,7 +9530,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df02a4fb1aae4f768caa9033f4670393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputCtrl: {fileID: 0}
   wheels:
   - {fileID: 6020012495656074683}
   - {fileID: 4673256236628728515}
@@ -9548,18 +9546,7 @@ MonoBehaviour:
   gearText: {fileID: 4883994954740785225}
   steeringWheel: {fileID: 1283614622344828610}
   headLights: {fileID: 1996626492324407590}
---- !u!114 &2205619189603707019
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8321364818343374176}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 481c97259002451cb77c2482fed9cb87, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  controller: {fileID: 11400000, guid: 8268bb9eff5a1954492cd4817fb37528, type: 2}
 --- !u!114 &4713518345410871357
 MonoBehaviour:
   m_ObjectHideFlags: 0

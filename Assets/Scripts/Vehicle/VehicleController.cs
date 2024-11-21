@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using LogitechG29.Sample.Input;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,7 +9,6 @@ namespace Vehicle
 {
     public class VehicleController : MonoBehaviour
     {
-        [SerializeField] private InputController inputCtrl;
         [SerializeField] private WheelControl[] wheels;
         [SerializeField] private Transform centerOfMass;
 
@@ -26,32 +26,27 @@ namespace Vehicle
         [SerializeField] private GameObject steeringWheel;
         [SerializeField] private GameObject headLights;
         
-        // Input actions
-        private InputAction _setRearAction;
-        private InputAction _shiftGearAction;
-        private InputAction _setNeutralAction;
-        private InputAction _startEngineAction;
-        private InputAction _brakeAction;
-        private InputAction _lightsAction;
+        [SerializeField] private InputActionReference shifter1Action;
+        [SerializeField] private InputActionReference shifter2Action;
+        [SerializeField] private InputActionReference shifter3Action;
+        [SerializeField] private InputActionReference shifter4Action;
+        [SerializeField] private InputActionReference shifter5Action;
+        [SerializeField] private InputActionReference shifter6Action;
+        [SerializeField] private InputActionReference shifter7Action;
         
         private GearShifter _gearShifter;
         private Rigidbody _rb;
     
         private bool _engineRunning;
         private bool _brakeApplied = true;
+
+        [SerializeField] private InputControllerReader controller;
         
         private void Start()
         {
             _rb = GetComponent<Rigidbody>();
             _gearShifter = GetComponent<GearShifter>();
             _gearShifter.CurrentGear = 0; // neutral
-            
-            _setRearAction = InputSystem.actions.FindAction("SetRear");
-            _shiftGearAction = InputSystem.actions.FindAction("ShiftGear");
-            _setNeutralAction = InputSystem.actions.FindAction("SetNeutral");
-            _startEngineAction = InputSystem.actions.FindAction("StartEngine");
-            _brakeAction = InputSystem.actions.FindAction("Brake");
-            _lightsAction = InputSystem.actions.FindAction("Lights");
         }
 
         private void FixedUpdate()
@@ -89,7 +84,7 @@ namespace Vehicle
 
         private void Update()
         {
-            ControlInput();
+            // ControlInput();
             AnimateSteeringWheel();
         }
 
@@ -100,83 +95,27 @@ namespace Vehicle
                 // Apply steering to Wheel colliders that have "Steerable" enabled
                 if (wheel.steerable)
                 {
-                    wheel.WheelCollider.steerAngle = inputCtrl.Horizontal * currentSteerRange;
+                    wheel.WheelCollider.steerAngle = controller.Steering * currentSteerRange;
                 }
 
-                if (_gearShifter.CurrentGear == 0 || _brakeApplied) // neutral
+                if (wheel.motorized)
                 {
-                    return;
-                }
-                
-                if (_gearShifter.CurrentGear > 0)
-                {
-                    // Apply torque to Wheel colliders that have "Motorized" enabled
-                    if (wheel.motorized)
+                    if (_brakeApplied) // handbrake
                     {
-                        wheel.WheelCollider.motorTorque = Mathf.Abs(inputCtrl.Vertical) * currentMotorTorque;
+                        wheel.WheelCollider.brakeTorque = brakeTorque;
+                        return;
                     }
 
-                    if (inputCtrl.Vertical < 0)
+                    if (_gearShifter.CurrentGear > 0)
                     {
-                        wheel.WheelCollider.brakeTorque = Mathf.Abs(inputCtrl.Vertical) * brakeTorque;
+                        wheel.WheelCollider.motorTorque = controller.Throttle * currentMotorTorque;
                     }
                     else
                     {
-                        wheel.WheelCollider.brakeTorque = 0;
+                        wheel.WheelCollider.motorTorque = -controller.Throttle * currentMotorTorque;
                     }
-                }
-                else // rear
-                {
-                    // If the user is trying to go in the opposite direction
-                    // apply brakes to all wheels
-                    if (inputCtrl.Vertical > 0)
-                    {
-                        wheel.WheelCollider.motorTorque = Mathf.Abs(inputCtrl.Vertical) * -currentMotorTorque;
-                        wheel.WheelCollider.brakeTorque = 0;
-                    }
-                    else
-                    {
-                        wheel.WheelCollider.brakeTorque = Mathf.Abs(inputCtrl.Vertical) * brakeTorque;
-                        wheel.WheelCollider.motorTorque = 0;
-                    }
-                }
-            }
-        }
-        
-        private void ControlInput()
-        {
-            if (_setRearAction.triggered)
-            {
-                _gearShifter.CurrentGear = -1;
-            }
 
-            if (_shiftGearAction.triggered)
-            {
-                InputControl inputControl = _shiftGearAction.activeControl;
-                _gearShifter.CurrentGear = Convert.ToInt32(inputControl.displayName);
-            }
-
-            if (_setNeutralAction.triggered)
-            {
-                _gearShifter.CurrentGear = 0;
-            }
-
-            if (_startEngineAction.triggered)
-            {
-                _engineRunning = true;
-                tabletGUI.SetActive(!tabletGUI.activeSelf);
-            }
-
-            if (_brakeAction.triggered)
-            {
-                _brakeApplied = !_brakeApplied;
-            }
-
-            if (_lightsAction.triggered)
-            {
-                if (_engineRunning)
-                {
-                    headLights.SetActive(!headLights.activeSelf);
+                    wheel.WheelCollider.brakeTorque = controller.Brake * brakeTorque;
                 }
             }
         }
@@ -203,25 +142,101 @@ namespace Vehicle
         private void AnimateSteeringWheel()
         {
             float turnSpeed = 75f;
-            // float angle = 0f;
-            // if (inputCtrl.Horizontal > 0)
-            // {
-            //     angle = Mathf.InverseLerp(0, 450, inputCtrl.Horizontal);
-            // }
-            // else if (inputCtrl.Horizontal < 0)
-            // {
-            //     angle = Mathf.InverseLerp(-450, 0, inputCtrl.Horizontal);
-            // }
-            if (inputCtrl.Horizontal != 0)
+            
+            if (-controller.Steering != 0)
             {
-                // float angle = Mathf.InverseLerp(-450, 450, inputCtrl.Horizontal) * turnSpeed;
                 // need to clamp rotation and reset the wheel gradually if there is no input
-                // Vector3 rotationZ = new Vector3(0, 0, -angle);
-                steeringWheel.transform.Rotate(Vector3.forward, -inputCtrl.Horizontal * turnSpeed * Time.deltaTime);
+                steeringWheel.transform.Rotate(Vector3.forward, -controller.Steering * turnSpeed * Time.deltaTime);
             }
             else
             {
                 // reset rotation
+            }
+        }
+
+        private void OnEnable()
+        {
+            controller.OnReturnCallback += HandleOnReturnCallback;
+            
+            shifter1Action.action.performed += HandleShifterCallback;
+            shifter2Action.action.performed += HandleShifterCallback;
+            shifter3Action.action.performed += HandleShifterCallback;
+            shifter4Action.action.performed += HandleShifterCallback;
+            shifter5Action.action.performed += HandleShifterCallback;
+            shifter6Action.action.performed += HandleShifterCallback;
+            shifter7Action.action.performed += HandleShifterCallback;
+            
+            controller.HandbrakeCallback += HandleHandbrakeCallback;
+            controller.OnWestButtonCallback += HandleWestCallback;
+            controller.OnSouthButtonCallback += HandleSouthCallback;
+        }
+
+        private void OnDisable()
+        {
+            controller.OnReturnCallback -= HandleOnReturnCallback;
+            
+            shifter1Action.action.performed -= HandleShifterCallback;
+            shifter2Action.action.performed -= HandleShifterCallback;
+            shifter3Action.action.performed -= HandleShifterCallback;
+            shifter4Action.action.performed -= HandleShifterCallback;
+            shifter5Action.action.performed -= HandleShifterCallback;
+            shifter6Action.action.performed -= HandleShifterCallback;
+            shifter7Action.action.performed -= HandleShifterCallback;
+            
+            controller.HandbrakeCallback -= HandleHandbrakeCallback;
+            controller.OnWestButtonCallback -= HandleWestCallback;
+            controller.OnSouthButtonCallback -= HandleSouthCallback;
+        }
+
+        private void HandleOnReturnCallback(bool value) // start engine
+        {
+            if (value)
+            {
+                _engineRunning = true;
+                tabletGUI.SetActive(!tabletGUI.activeSelf);
+                Debug.Log("wheel enter");
+            }
+        }
+
+        private void HandleShifterCallback(InputAction.CallbackContext context) // stupid shifter
+        {
+            string actionName = context.action.name;
+            char lastCharacter = actionName[^1];
+            if (lastCharacter == '7')
+            {
+                _gearShifter.CurrentGear = -1; // rear (can be handled better but legacy code what can you do)
+            }
+            else
+            {
+                _gearShifter.CurrentGear = Convert.ToInt32(lastCharacter) - 48;
+            }
+        }
+
+        private void HandleHandbrakeCallback(float value) // confusing handbrake
+        {
+            Debug.Log("Handbrake:" + value);
+            if (value != 0)
+            {
+                _brakeApplied = !_brakeApplied;
+            }
+        }
+
+        private void HandleWestCallback(bool value) // headlights
+        {
+            if (value)
+            {
+                if (_engineRunning)
+                {
+                    headLights.SetActive(!headLights.activeSelf);
+                }
+            }
+        }
+
+        private void HandleSouthCallback(bool value) // neutral (for now)
+        {
+            if (value)
+            {
+                _gearShifter.CurrentGear = 0;
             }
         }
     }
