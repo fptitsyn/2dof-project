@@ -2,8 +2,10 @@
 using System.Globalization;
 using LogitechG29.Sample.Input;
 using TMPro;
+using UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 namespace Vehicle
 {
@@ -43,7 +45,9 @@ namespace Vehicle
 
         [SerializeField] private InputControllerReader controller;
 
-        private bool _isPaused;
+        // private bool _isPaused;
+
+        [SerializeField] private GameObject pauseUI;
         
         private void Start()
         {
@@ -100,6 +104,11 @@ namespace Vehicle
                     wheel.WheelCollider.steerAngle = controller.Steering * currentSteerRange;
                 }
 
+                if (!_engineRunning)
+                {
+                    return;
+                }
+                
                 if (wheel.motorized)
                 {
                     if (_handBrakeApplied) // handbrake
@@ -111,13 +120,13 @@ namespace Vehicle
                     if (_gearShifter.CurrentGear > 0)
                     {
                         wheel.WheelCollider.motorTorque = controller.Throttle * currentMotorTorque;
+                        wheel.WheelCollider.brakeTorque = controller.Brake * brakeTorque;
                     }
-                    else
+                    else if (_gearShifter.CurrentGear == -1) // rear
                     {
                         wheel.WheelCollider.motorTorque = -controller.Throttle * currentMotorTorque;
+                        wheel.WheelCollider.brakeTorque = controller.Brake * brakeTorque;
                     }
-
-                    wheel.WheelCollider.brakeTorque = controller.Brake * brakeTorque;
                 }
             }
         }
@@ -156,7 +165,7 @@ namespace Vehicle
                 // reset rotation
             }
         }
-
+        
         private void OnEnable()
         {
             // Shifter
@@ -251,16 +260,8 @@ namespace Vehicle
         {
             if (value)
             {
-                if (_isPaused)
-                {
-                    _isPaused = false;
-                    Time.timeScale = 1;
-                }
-                else
-                {
-                    _isPaused = true;
-                    Time.timeScale = 0;
-                }
+                // pauseUI.SetActive(!pauseUI.activeSelf);
+                PauseUI.TogglePause();
             }
         }
     }
