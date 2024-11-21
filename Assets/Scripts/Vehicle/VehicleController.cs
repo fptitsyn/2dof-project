@@ -22,6 +22,7 @@ namespace Vehicle
         [SerializeField] private TMP_Text speedometerText;
         [SerializeField] private TMP_Text rpmText;
         [SerializeField] private TMP_Text gearText;
+        [SerializeField] private TMP_Text handbrakeText;
 
         [SerializeField] private GameObject steeringWheel;
         [SerializeField] private GameObject headLights;
@@ -38,7 +39,7 @@ namespace Vehicle
         private Rigidbody _rb;
     
         private bool _engineRunning;
-        private bool _brakeApplied = true;
+        private bool _handBrakeApplied;
 
         [SerializeField] private InputControllerReader controller;
         
@@ -84,7 +85,6 @@ namespace Vehicle
 
         private void Update()
         {
-            // ControlInput();
             AnimateSteeringWheel();
         }
 
@@ -100,7 +100,7 @@ namespace Vehicle
 
                 if (wheel.motorized)
                 {
-                    if (_brakeApplied) // handbrake
+                    if (_handBrakeApplied) // handbrake
                     {
                         wheel.WheelCollider.brakeTorque = brakeTorque;
                         return;
@@ -122,21 +122,22 @@ namespace Vehicle
 
         private void UpdateUi(float kilosPerHour, float rpm)
         {
-            speedometerText.text = Mathf.Round(kilosPerHour).ToString("00");
-            rpmText.text = Mathf.Round(rpm).ToString(CultureInfo.InvariantCulture);
+            speedometerText.text = $"{Mathf.Round(kilosPerHour)} KM/H";
+            rpmText.text = $"RPM: {Mathf.Round(rpm)}";
             if (_gearShifter.CurrentGear == 0)
             {
                 gearText.text = "N";
             }
             else if (_gearShifter.CurrentGear == -1)
             {
-                Debug.Log(_gearShifter.maxSpeedInKms);
                 gearText.text = "R";
             }
             else
             {
                 gearText.text = _gearShifter.CurrentGear.ToString();
             }
+
+            handbrakeText.text = _handBrakeApplied ? "Handbrake: ON" : "Handbrake: OFF";
         }
 
         private void AnimateSteeringWheel()
@@ -214,11 +215,7 @@ namespace Vehicle
 
         private void HandleHandbrakeCallback(float value) // confusing handbrake
         {
-            Debug.Log("Handbrake:" + value);
-            if (value != 0)
-            {
-                _brakeApplied = !_brakeApplied;
-            }
+            _handBrakeApplied = !_handBrakeApplied;
         }
 
         private void HandleWestCallback(bool value) // headlights
