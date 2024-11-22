@@ -50,7 +50,7 @@ namespace UI
         {
             mainCamera.Priority = 0;
             carCamera.Priority = 1;
-            yield return new WaitForSeconds(2.5f);
+            yield return new WaitForSeconds(3f);
             
             SceneManager.LoadScene(index);
         }
