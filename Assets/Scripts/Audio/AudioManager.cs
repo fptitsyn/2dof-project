@@ -42,7 +42,7 @@ namespace Audio
         {
             Sound s = sounds.Find(x => x.name == soundName);
 
-            if (s == null)
+            if (s == null) // actually doesn't return null, need to test
             {
                 Debug.LogWarning("Sound " + soundName + " not found!");
                 return;

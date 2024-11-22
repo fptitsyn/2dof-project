@@ -7,6 +7,7 @@ using UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 namespace Vehicle
 {
@@ -46,9 +47,7 @@ namespace Vehicle
 
         [SerializeField] private InputControllerReader controller;
 
-        // private bool _isPaused;
-
-        [SerializeField] private GameObject pauseUI;
+        [SerializeField] private AudioSource engineAudioSource;
         
         private void Start()
         {
@@ -83,7 +82,7 @@ namespace Vehicle
             // (the car steers more gently at top speed)
             float currentSteerRange = Mathf.Lerp(steeringRange, steeringRangeAtMaxSpeed, speedFactor);
 
-            Drive(currentSteerRange, currentMotorTorque);
+            Drive(currentSteerRange, currentMotorTorque, speedFactor);
             
             float rpm = motorTorque * speedFactor;
             float kilosPerHour = Mathf.Clamp(forwardSpeed * 3.6f, 0, _gearShifter.maxSpeedInKms);
@@ -95,7 +94,7 @@ namespace Vehicle
             AnimateSteeringWheel();
         }
 
-        private void Drive(float currentSteerRange, float currentMotorTorque)
+        private void Drive(float currentSteerRange, float currentMotorTorque, float speedFactor)
         {
             foreach (WheelControl wheel in wheels)
             {
@@ -118,6 +117,7 @@ namespace Vehicle
                         return;
                     }
 
+                    engineAudioSource.pitch = 1 + speedFactor;
                     if (_gearShifter.CurrentGear > 0)
                     {
                         wheel.WheelCollider.motorTorque = controller.Throttle * currentMotorTorque;
@@ -213,9 +213,19 @@ namespace Vehicle
         {
             if (value)
             {
-                _engineRunning = true;
+                AudioManager.Instance.PlaySfx("Physical Button");
+                _engineRunning = !_engineRunning;
                 tabletGUI.SetActive(!tabletGUI.activeSelf);
-                Debug.Log("wheel enter");
+                if (_engineRunning)
+                {
+                    AudioManager.Instance.PlaySfx("Start engine");
+                    engineAudioSource.PlayDelayed(0.15f);
+                    engineAudioSource.pitch = 1;
+                }
+                else
+                {
+                    engineAudioSource.Stop();
+                }
             }
         }
 
@@ -242,6 +252,7 @@ namespace Vehicle
         {
             if (value)
             {
+                AudioManager.Instance.PlaySfx("Physical Button");
                 if (_engineRunning)
                 {
                     headLights.SetActive(!headLights.activeSelf);
@@ -253,6 +264,7 @@ namespace Vehicle
         {
             if (value)
             {
+                AudioManager.Instance.PlaySfx("Physical Button");
                 _gearShifter.CurrentGear = 0;
             }
         }
@@ -261,7 +273,6 @@ namespace Vehicle
         {
             if (value)
             {
-                // pauseUI.SetActive(!pauseUI.activeSelf);
                 AudioManager.Instance.PlaySfx("Click");
                 PauseUI.TogglePause();
             }
