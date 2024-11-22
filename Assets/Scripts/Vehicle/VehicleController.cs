@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using Audio;
 using LogitechG29.Sample.Input;
 using TMPro;
 using UI;
@@ -261,6 +262,7 @@ namespace Vehicle
             if (value)
             {
                 // pauseUI.SetActive(!pauseUI.activeSelf);
+                AudioManager.Instance.PlaySfx("Click");
                 PauseUI.TogglePause();
             }
         }

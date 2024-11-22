@@ -1,4 +1,5 @@
 ﻿using System;
+using Audio;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,6 +14,7 @@ namespace UI
 
         private Canvas _canvas;
 
+        [SerializeField] private GameObject mainUI;
         [SerializeField] private GameObject settingsUI;
 
         private void Awake()
@@ -35,6 +37,7 @@ namespace UI
 
         public static void TogglePause()
         {
+            AudioManager.Instance.PlaySfx("Click");
             if (IsPaused)
             {
                 IsPaused = false;
@@ -49,13 +52,17 @@ namespace UI
             }
         }
 
-        public void OpenSettings()
+        public void ToggleSettings(bool value)
         {
-            settingsUI.SetActive(true);
+            AudioManager.Instance.PlaySfx("Click");
+            mainUI.SetActive(!value);
+            settingsUI.SetActive(value);
         }
 
         public void ExitToMenu()
         {
+            AudioManager.Instance.PlaySfx("Click");
+            Time.timeScale = 1;
             SceneManager.LoadScene(0);
         }
     }
