@@ -51,6 +51,11 @@ namespace Vehicle
         
         private void Start()
         {
+            #if UNITY_STANDALONE_WIN
+                Cursor.visible = false;
+            #elif UNITY_EDITOR
+                Cursor.visible = true;
+            #endif
             _rb = GetComponent<Rigidbody>();
             _gearShifter = GetComponent<GearShifter>();
             _gearShifter.CurrentGear = 0; // neutral

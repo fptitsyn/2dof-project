@@ -18,6 +18,11 @@ namespace UI
 
         private void Start()
         {
+            #if UNITY_STANDALONE_WIN
+                Cursor.visible = false;
+            #elif UNITY_EDITOR
+                Cursor.visible = true;
+            #endif
             AudioManager.Instance.PlayMusic("Main Theme");
         }
 
