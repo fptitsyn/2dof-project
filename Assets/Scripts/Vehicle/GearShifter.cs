@@ -18,11 +18,11 @@ namespace Vehicle
                 _currentGear = value;
                 maxSpeedInKms = value switch
                 {
-                    1 => 20,
-                    2 => 40,
-                    3 => 60,
-                    4 => 90,
-                    5 => 125,
+                    1 => 25,
+                    2 => 50,
+                    3 => 75,
+                    4 => 110,
+                    5 => 150,
                     6 => 160,
                     -1 => 15, // doesn't work
                     _ => 0

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using Audio;
 using LogitechG29.Sample.Input;
 using TMPro;
@@ -97,6 +98,14 @@ namespace Vehicle
         private void Update()
         {
             AnimateSteeringWheel();
+            
+            Debug.Log($"1 {controller.Shifter1}");
+            Debug.Log($"2 {controller.Shifter2}");
+            Debug.Log($"3 {controller.Shifter3}");
+            Debug.Log($"4 {controller.Shifter4}");
+            Debug.Log($"5 {controller.Shifter5}");
+            Debug.Log($"6 {controller.Shifter6}");
+            Debug.Log($"7 {controller.Shifter7}");
         }
 
         private void Drive(float currentSteerRange, float currentMotorTorque, float speedFactor)
@@ -106,6 +115,7 @@ namespace Vehicle
                 // Apply steering to Wheel colliders that have "Steerable" enabled
                 if (wheel.steerable)
                 {
+                    // add steering multiplier
                     wheel.WheelCollider.steerAngle = controller.Steering * currentSteerRange;
                 }
 
@@ -229,6 +239,7 @@ namespace Vehicle
                 }
                 else
                 {
+                    headLights.SetActive(false);
                     engineAudioSource.Stop();
                 }
             }
@@ -238,7 +249,7 @@ namespace Vehicle
         {
             string actionName = context.action.name;
             char lastCharacter = actionName[^1];
-            if (lastCharacter == '7')
+            if (lastCharacter == '6')
             {
                 _gearShifter.CurrentGear = -1; // rear (can be handled better but legacy code what can you do)
             }
