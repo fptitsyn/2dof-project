@@ -205,7 +205,7 @@ namespace Vehicle
 
         private void OnDisable()
         {
-            // shifter
+            // Shifter
             shifter1Action.action.performed -= HandleShifterCallback;
             shifter2Action.action.performed -= HandleShifterCallback;
             shifter3Action.action.performed -= HandleShifterCallback;
@@ -249,7 +249,7 @@ namespace Vehicle
         {
             string actionName = context.action.name;
             char lastCharacter = actionName[^1];
-            if (lastCharacter == '6')
+            if (lastCharacter >= '6')
             {
                 _gearShifter.CurrentGear = -1; // rear (can be handled better but legacy code what can you do)
             }
