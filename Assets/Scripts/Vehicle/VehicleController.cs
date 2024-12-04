@@ -8,6 +8,7 @@ using UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace Vehicle
@@ -21,6 +22,7 @@ namespace Vehicle
         [SerializeField] private float brakeTorque;
         [SerializeField] private float steeringRange;
         [SerializeField] private float steeringRangeAtMaxSpeed;
+        [SerializeField] private float steeringSensitivity;
 
         [Header("Car GUI")]
         [SerializeField] private GameObject tabletGUI;
@@ -49,14 +51,17 @@ namespace Vehicle
         [SerializeField] private InputControllerReader controller;
 
         [SerializeField] private AudioSource engineAudioSource;
+
+        [SerializeField] private Slider sensitivitySlider;
+        
         
         private void Start()
         {
-            #if UNITY_STANDALONE_WIN
-                Cursor.visible = false;
-            #elif UNITY_EDITOR
-                Cursor.visible = true;
-            #endif
+            // #if UNITY_STANDALONE_WIN
+            //     Cursor.visible = false;
+            // #elif UNITY_EDITOR
+            //     Cursor.visible = true;
+            // #endif
             _rb = GetComponent<Rigidbody>();
             _gearShifter = GetComponent<GearShifter>();
             _gearShifter.CurrentGear = 0; // neutral
@@ -97,15 +102,15 @@ namespace Vehicle
 
         private void Update()
         {
-            AnimateSteeringWheel();
+            // AnimateSteeringWheel();
             
-            Debug.Log($"1 {controller.Shifter1}");
-            Debug.Log($"2 {controller.Shifter2}");
-            Debug.Log($"3 {controller.Shifter3}");
-            Debug.Log($"4 {controller.Shifter4}");
-            Debug.Log($"5 {controller.Shifter5}");
-            Debug.Log($"6 {controller.Shifter6}");
-            Debug.Log($"7 {controller.Shifter7}");
+            // Debug.Log($"1 {controller.Shifter1}");
+            // Debug.Log($"2 {controller.Shifter2}");
+            // Debug.Log($"3 {controller.Shifter3}");
+            // Debug.Log($"4 {controller.Shifter4}");
+            // Debug.Log($"5 {controller.Shifter5}");
+            // Debug.Log($"6 {controller.Shifter6}");
+            // Debug.Log($"7 {controller.Shifter7}");
         }
 
         private void Drive(float currentSteerRange, float currentMotorTorque, float speedFactor)
@@ -116,7 +121,7 @@ namespace Vehicle
                 if (wheel.steerable)
                 {
                     // add steering multiplier
-                    wheel.WheelCollider.steerAngle = controller.Steering * currentSteerRange;
+                    wheel.WheelCollider.steerAngle = controller.Steering * currentSteerRange * steeringSensitivity;
                 }
 
                 if (!_engineRunning)
@@ -170,15 +175,19 @@ namespace Vehicle
         private void AnimateSteeringWheel()
         {
             float turnSpeed = 75f;
+            float currentAngle = 0f;
             
             if (-controller.Steering != 0)
             {
+                Debug.Log(currentAngle);
                 // need to clamp rotation and reset the wheel gradually if there is no input
+                currentAngle += -controller.Steering * turnSpeed * Time.deltaTime;
                 steeringWheel.transform.Rotate(Vector3.forward, -controller.Steering * turnSpeed * Time.deltaTime);
             }
             else
             {
-                // reset rotation
+                Debug.Log(currentAngle);
+                steeringWheel.transform.Rotate(Vector3.forward, -currentAngle);
             }
         }
         
@@ -291,7 +300,20 @@ namespace Vehicle
             {
                 AudioManager.Instance.PlaySfx("Click");
                 PauseUI.TogglePause();
+                if (engineAudioSource.isPlaying)
+                {
+                    engineAudioSource.Pause();
+                }
+                else
+                {
+                    engineAudioSource.Play();
+                }
             }
+        }
+
+        public void ChangeSteeringSensitivity()
+        {
+            steeringSensitivity = sensitivitySlider.value;
         }
     }
 }

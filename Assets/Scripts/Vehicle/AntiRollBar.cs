@@ -7,7 +7,7 @@ namespace Vehicle
         [SerializeField] private WheelCollider wheelFrontLeft;
         [SerializeField] private WheelCollider wheelFrontRight;
         [SerializeField] private WheelCollider wheelRearLeft;
-        [SerializeField] private WheelCollider wheelRearRright;
+        [SerializeField] private WheelCollider wheelRearRight;
         [SerializeField] private float antiRoll = 5000.0f;
 
         private Rigidbody _rb;
@@ -19,7 +19,7 @@ namespace Vehicle
         void FixedUpdate()
         {
             StabilizeAxle(wheelFrontLeft, wheelFrontRight);
-            StabilizeAxle(wheelRearLeft, wheelRearRright);
+            StabilizeAxle(wheelRearLeft, wheelRearRight);
         }
 
         private void StabilizeAxle(WheelCollider leftWheel, WheelCollider rightWheel)
