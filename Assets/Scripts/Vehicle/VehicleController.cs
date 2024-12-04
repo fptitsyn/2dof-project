@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Audio;
 using LogitechG29.Sample.Input;
@@ -53,7 +55,8 @@ namespace Vehicle
         [SerializeField] private AudioSource engineAudioSource;
 
         [SerializeField] private Slider sensitivitySlider;
-        
+
+        public List<bool> shifters;
         
         private void Start()
         {
@@ -102,15 +105,28 @@ namespace Vehicle
 
         private void Update()
         {
-            // AnimateSteeringWheel();
+            #if UNITY_STANDALONE_WIN
+                CheckIfNeutral();
+            #endif
+        }
+
+        private void CheckIfNeutral()
+        {
+            shifters = new () 
+            {
+                controller.Shifter1, controller.Shifter2, controller.Shifter3,
+                controller.Shifter4, controller.Shifter5, controller.Shifter6,
+                controller.Shifter7
+            };
+            foreach (var shifter in shifters)
+            {
+                if (shifter)
+                {
+                    return;
+                }
+            }
             
-            // Debug.Log($"1 {controller.Shifter1}");
-            // Debug.Log($"2 {controller.Shifter2}");
-            // Debug.Log($"3 {controller.Shifter3}");
-            // Debug.Log($"4 {controller.Shifter4}");
-            // Debug.Log($"5 {controller.Shifter5}");
-            // Debug.Log($"6 {controller.Shifter6}");
-            // Debug.Log($"7 {controller.Shifter7}");
+            _gearShifter.CurrentGear = 0;
         }
 
         private void Drive(float currentSteerRange, float currentMotorTorque, float speedFactor)
@@ -170,25 +186,6 @@ namespace Vehicle
             }
 
             handbrakeText.text = _handBrakeApplied ? "Handbrake: ON" : "Handbrake: OFF";
-        }
-
-        private void AnimateSteeringWheel()
-        {
-            float turnSpeed = 75f;
-            float currentAngle = 0f;
-            
-            if (-controller.Steering != 0)
-            {
-                Debug.Log(currentAngle);
-                // need to clamp rotation and reset the wheel gradually if there is no input
-                currentAngle += -controller.Steering * turnSpeed * Time.deltaTime;
-                steeringWheel.transform.Rotate(Vector3.forward, -controller.Steering * turnSpeed * Time.deltaTime);
-            }
-            else
-            {
-                Debug.Log(currentAngle);
-                steeringWheel.transform.Rotate(Vector3.forward, -currentAngle);
-            }
         }
         
         private void OnEnable()

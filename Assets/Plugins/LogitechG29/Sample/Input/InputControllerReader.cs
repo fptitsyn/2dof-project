@@ -1,6 +1,7 @@
 #region
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -88,7 +89,7 @@ namespace LogitechG29.Sample.Input
         public bool Shifter5 { get; private set; }
         public bool Shifter6 { get; private set; }
         public bool Shifter7 { get; private set; }
-
+        
         public float Steering { get; private set; }
         public float Throttle { get; private set; }
         public float Brake { get; private set; }
